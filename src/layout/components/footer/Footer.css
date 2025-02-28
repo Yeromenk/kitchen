@@ -1,0 +1,116 @@
+.footer {
+    background-color: #ffffff;
+    color: #333;
+    padding: 4rem 2rem 2rem;
+    border-top: 1px solid #eaeaea;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+}
+
+.footer-section {
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.footer-section h3 {
+    color: #8B4513;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 2px solid #8B451333;
+    padding-bottom: 0.5rem;
+}
+
+.map-container {
+    margin-top: 1.5rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.hours-list {
+    list-style: none;
+    padding: 0;
+}
+
+.hours-list li {
+    margin-bottom: 0.8rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.hours-list li:last-child {
+    border-bottom: none;
+}
+
+.hours-list span {
+    color: #8B4513;
+    font-weight: 600;
+    display: inline-block;
+    width: 130px;
+}
+
+.social-links {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.social-links a {
+    color: #8B4513;
+    font-size: 2.5rem;
+    background-color: #f0e6e0;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    transform: scale(1.1) rotate(5deg);
+    background-color: #8B4513;
+    color: white;
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+}
+
+.footer p {
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .footer-section {
+        text-align: center;
+    }
+
+    .hours-list span {
+        width: auto;
+        margin-right: 0.5rem;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .footer p {
+        justify-content: center;
+    }
+}
