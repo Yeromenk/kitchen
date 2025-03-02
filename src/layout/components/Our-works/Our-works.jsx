@@ -4,6 +4,7 @@ import {useState} from 'react'
 const OurWorks = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [selectedWork, setSelectedWork] = useState(null)
+    const [imagesLoaded, setImagesLoaded] = useState(false)
     
     const categories = ['all', 'кухні', 'корпусні меблі', 'санвузли']
 
@@ -94,7 +95,13 @@ const OurWorks = () => {
                     {filteredWorks.map(work => (
                         <div key={work.id} className="work-card">
                             <div className="work-image">
-                                <img src={work.image} alt={work.title}/>
+                                {!imagesLoaded && <div className="image-placeholder"></div>}
+                                <img
+                                    src={work.image}
+                                    alt={work.title}
+                                    onLoad={() => setImagesLoaded(true)}
+                                    style={{visibility: imagesLoaded ? 'visible' : 'hidden'}}
+                                />
                             </div>
                             <div className="work-info">
                                 <h3>{work.title}</h3>

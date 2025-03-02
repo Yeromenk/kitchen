@@ -2,14 +2,15 @@
     display: flex;
     flex-direction: column;
     background-color: #F5F5DC;
-    font-family: 'Poppins', sans-serif;
+    padding-top: 60px;
 }
 
 .header {
     background-color: #8B4513;
     padding: 0.8rem 1.5rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    position: sticky;
+    position: fixed;
+    width: 100%;
     top: 0;
     z-index: 1000;
     transition: all 0.3s ease;
