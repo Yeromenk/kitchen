@@ -14,7 +14,7 @@ const OurWorks = () => {
             id: 1,
             title: "Сучасна кухня",
             category: "кухні",
-            image: "/src/assets/Petro Crystal/20241223_115719.jpg",
+            image: "20241223_115719.jpg",
             description: "Модернізація кухні з індивідуальними шафами",
             imageFolder: "Petro Crystal"
         },
@@ -22,7 +22,7 @@ const OurWorks = () => {
             id: 2,
             title: "Класична кухня",
             category: "кухні",
-            image: "/src/assets/Bogdan/20241028_191835.jpg",
+            image: "20241028_191835.jpg",
             description: "Традиційний дизайн з сучасними зручностями",
             imageFolder: "Bogdan"
         },
@@ -30,7 +30,7 @@ const OurWorks = () => {
             id: 3,
             title: "Шафа-купе",
             category: "корпусні меблі",
-            image: "/src/assets/Oksana/20240115_200402.jpg",
+            image: "20240115_200402.jpg",
             description: "Ергономічна шафа-купе з дзеркалами",
             imageFolder: "Oksana"
         },
@@ -38,7 +38,7 @@ const OurWorks = () => {
             id: 4,
             title: "Гардеробна",
             category: "корпусні меблі",
-            image: "/src/assets/Oleksander/20231212_184220.jpg",
+            image: "20231212_184220.jpg",
             description: "Простора гардеробна з системою зберігання",
             imageFolder: "Oleksander"
         },
@@ -114,28 +114,30 @@ const OurWorks = () => {
 
     // Also update the useEffect to fix the dependency array
     useEffect(() => {
-        const loadImagesFromFolders = async () => {
-            const imageModules = import.meta.glob('/src/assets/**/*.{png,jpg,jpeg,webp,svg}')
-            const allImages = {}
+        const loadFeaturedImages = async () => {
+            const imageModules = import.meta.glob('/src/assets/**/*.{png,jpg,jpeg,webp,svg}');
+            const images = {};
 
             for (const work of works) {
-                if (work.imageFolder) {
-                    allImages[work.id] = []
+                if (work.imageFolder && work.featuredImageName) {
+                    const expectedPath = `/src/assets/${work.imageFolder}/${work.featuredImageName}`;
 
+                    // Find the exact path that matches our expected path pattern
                     for (const path in imageModules) {
-                        if (path.includes(`/${work.imageFolder}/`)) {
-                            const imageModule = await imageModules[path]()
-                            allImages[work.id].push(imageModule.default)
+                        if (path === expectedPath) {
+                            const imageModule = await imageModules[path]();
+                            images[work.id] = imageModule.default;
+                            break;
                         }
                     }
                 }
             }
 
-            setFolderImages(allImages)
-        }
+            setFolderImages(images);
+        };
 
-        loadImagesFromFolders()
-    }, [works]) // Add works as dependency
+        loadFeaturedImages();
+    }, []);
 
 // Keep the separate useEffect for image orientation
     useEffect(() => {
