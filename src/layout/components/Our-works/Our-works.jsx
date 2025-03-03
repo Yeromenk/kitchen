@@ -1,10 +1,11 @@
 import './Our-works.css'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 
 const OurWorks = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [selectedWork, setSelectedWork] = useState(null)
     const [imagesLoaded, setImagesLoaded] = useState(false)
+    const [folderImages, setFolderImages] = useState({})
     
     const categories = ['all', 'кухні', 'корпусні меблі', 'санвузли']
 
@@ -13,45 +14,80 @@ const OurWorks = () => {
             id: 1,
             title: "Сучасна кухня",
             category: "кухні",
-            image: "https://images.unsplash.com/photo-1556911220-bff31c812dba",
-            description: "Модернізація кухні з індивідуальними шафами"
+            image: "/src/assets/Petro Crystal/20241223_115719.jpg",
+            description: "Модернізація кухні з індивідуальними шафами",
+            imageFolder: "Petro Crystal"
         },
         {
             id: 2,
             title: "Класична кухня",
             category: "кухні",
-            image: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d",
-            description: "Традиційний дизайн з сучасними зручностями"
+            image: "/src/assets/Bogdan/20241028_191835.jpg",
+            description: "Традиційний дизайн з сучасними зручностями",
+            imageFolder: "Bogdan"
         },
         {
             id: 3,
             title: "Шафа-купе",
             category: "корпусні меблі",
-            image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136",
-            description: "Ергономічна шафа-купе з дзеркалами"
+            image: "/src/assets/Oksana/20240115_200402.jpg",
+            description: "Ергономічна шафа-купе з дзеркалами",
+            imageFolder: "Oksana"
         },
         {
             id: 4,
             title: "Гардеробна",
             category: "корпусні меблі",
-            image: "https://images.unsplash.com/photo-1556911220-bff31c812dba",
-            description: "Простора гардеробна з системою зберігання"
+            image: "/src/assets/Oleksander/20231212_184220.jpg",
+            description: "Простора гардеробна з системою зберігання",
+            imageFolder: "Oleksander"
         },
         {
             id: 5,
             title: "Сучасний санвузол",
             category: "санвузли",
-            image: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d",
-            description: "Ванна кімната з функціональними меблями"
+            image: "/src/assets/Tatiana/20231221_213305.jpg",
+            description: "Ванна кімната з функціональними меблями",
+            imageFolder: "Tatiana"
         },
-        {
-            id: 6,
-            title: "Маленький санвузол",
-            category: "санвузли",
-            image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136",
-            description: "Компактне рішення для малогабаритних ванних кімнат"
-        }
+        // {
+        //     id: 6,
+        //     title: "Маленький санвузол",
+        //     category: "санвузли",
+        //     image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136",
+        //     description: "Компактне рішення для малогабаритних ванних кімнат"
+        // }
     ]
+
+    // In your component
+    const detectImageOrientation = (img, index) => {
+        return new Promise((resolve) => {
+            if (img.complete) {
+                handleImageLoad(img, index);
+                resolve();
+            } else {
+                img.onload = () => {
+                    handleImageLoad(img, index);
+                    resolve();
+                };
+            }
+        });
+    };
+
+    const handleImageLoad = (img) => {
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        const container = img.parentElement;
+
+        // Remove any existing classes
+        container.classList.remove('portrait', 'landscape');
+
+        // Add appropriate class based on orientation
+        if (aspectRatio < 0.8) {
+            container.classList.add('portrait');
+        } else if (aspectRatio > 1.2) {
+            container.classList.add('landscape');
+        }
+    };
 
     const filteredWorks = selectedCategory === 'all'
         ? works
@@ -63,7 +99,10 @@ const OurWorks = () => {
     }
 
     const openGallery = (work) => {
-        setSelectedWork(work);
+        setSelectedWork({
+            ...work,
+            images: folderImages[work.id] || []
+        });
         document.body.style.overflow = 'hidden';
     }
 
@@ -72,6 +111,43 @@ const OurWorks = () => {
             closeGallery();
         }
     }
+
+    // Also update the useEffect to fix the dependency array
+    useEffect(() => {
+        const loadImagesFromFolders = async () => {
+            const imageModules = import.meta.glob('/src/assets/**/*.{png,jpg,jpeg,webp,svg}')
+            const allImages = {}
+
+            for (const work of works) {
+                if (work.imageFolder) {
+                    allImages[work.id] = []
+
+                    for (const path in imageModules) {
+                        if (path.includes(`/${work.imageFolder}/`)) {
+                            const imageModule = await imageModules[path]()
+                            allImages[work.id].push(imageModule.default)
+                        }
+                    }
+                }
+            }
+
+            setFolderImages(allImages)
+        }
+
+        loadImagesFromFolders()
+    }, [works]) // Add works as dependency
+
+// Keep the separate useEffect for image orientation
+    useEffect(() => {
+        if (selectedWork?.images?.length) {
+            setTimeout(() => {
+                const imgElements = document.querySelectorAll('.gallery-image img');
+                imgElements.forEach(img => {
+                    detectImageOrientation(img);
+                });
+            }, 100);
+        }
+    }, [selectedWork])
 
 
     return (
@@ -128,8 +204,15 @@ const OurWorks = () => {
                             <h2>{selectedWork.title}</h2>
                             <div className="gallery-images">
                                 {selectedWork.images?.map((img, index) => (
-                                    <div className="gallery-image" key={index}>
-                                        <img src={img} alt={`${selectedWork.title} - фото ${index + 1}`}/>
+                                    <div
+                                        className="gallery-image"
+                                        key={index}
+                                        data-index={index}
+                                    >
+                                        <img
+                                            src={img}
+                                            alt={`${selectedWork.title} - фото ${index + 1}`}
+                                            loading="lazy" />
                                     </div>
                                 ))}
                             </div>
