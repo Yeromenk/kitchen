@@ -134,6 +134,7 @@ const OurWorks = () => {
             }
 
             setFolderImages(images);
+
         };
 
         loadFeaturedImages();
