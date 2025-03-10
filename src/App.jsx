@@ -26,7 +26,7 @@ const Layout = () => {
 
 const router = createBrowserRouter([
     {
-        path: '/kitchen',
+        path: '/',
         element: <Layout/>,
         errorElement: <ErrorPage/>,
 
