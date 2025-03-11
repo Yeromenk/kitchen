@@ -1,10 +1,10 @@
+import { useEffect, useState } from 'react'
 import './Our-works.css'
-import {useEffect, useState} from 'react'
 import petroCrystalImage from '../../../assets/Petro Crystal/20241223_115719.jpg'
-// import bogdanImage from '../../../assets/Bogdan/20241028_191835.jpg'
-// import oksanaImage from '../../../assets/Oksana/20240115_200402.jpg'
-// import oleksanderImage from '../../../assets/Oleksander/20231212_184220.jpg'
-// import tatianaImage from '../../../assets/Tatiana/20231221_213305.jpg'
+import bogdanImage from '../../../assets/Bogdan/20241028_191835.jpg'
+import oksanaImage from '../../../assets/Oksana/20240115_200402.jpg'
+import oleksanderImage from '../../../assets/Oleksander/20231212_184220.jpg'
+import tatianaImage from '../../../assets/Tatiana/20231221_213305.jpg'
 
 const OurWorks = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
@@ -27,7 +27,7 @@ const OurWorks = () => {
             id: 2,
             title: "Класична кухня",
             category: "кухні",
-            image: "bogdanImage",
+            image: bogdanImage,
             description: "Традиційний дизайн з сучасними зручностями",
             imageFolder: "Bogdan"
         },
@@ -35,7 +35,7 @@ const OurWorks = () => {
             id: 3,
             title: "Шафа-купе",
             category: "корпусні меблі",
-            image: "oksanaImage",
+            image: oksanaImage,
             description: "Ергономічна шафа-купе з дзеркалами",
             imageFolder: "Oksana"
         },
@@ -43,7 +43,7 @@ const OurWorks = () => {
             id: 4,
             title: "Гардеробна",
             category: "корпусні меблі",
-            image: "oleksanderImage",
+            image: oleksanderImage,
             description: "Простора гардеробна з системою зберігання",
             imageFolder: "Oleksander"
         },
@@ -51,21 +51,21 @@ const OurWorks = () => {
             id: 5,
             title: "Сучасний санвузол",
             category: "санвузли",
-            image: "tatianaImage",
+            image: tatianaImage,
             description: "Ванна кімната з функціональними меблями",
             imageFolder: "Tatiana"
         }
     ]
 
     // In your component
-    const detectImageOrientation = (img, index) => {
+    const detectImageOrientation = (img) => {
         return new Promise((resolve) => {
             if (img.complete) {
-                handleImageLoad(img, index);
+                handleImageLoad(img);
                 resolve();
             } else {
                 img.onload = () => {
-                    handleImageLoad(img, index);
+                    handleImageLoad(img);
                     resolve();
                 };
             }
@@ -110,34 +110,43 @@ const OurWorks = () => {
         }
     }
 
-    // Also update the useEffect to fix the dependency array
+    // Load all images from respective folders
     useEffect(() => {
-        const loadFeaturedImages = async () => {
+        const loadFolderImages = async () => {
             const imageModules = import.meta.glob('/src/assets/**/*.{png,jpg,jpeg,webp,svg}');
-            const images = {};
+            const allImages = {};
 
             for (const work of works) {
-                if (work.imageFolder && work.featuredImageName) {
-                    const expectedPath = `/src/assets/${work.imageFolder}/${work.featuredImageName}`;
+                if (work.imageFolder) {
+                    const folderPath = `/src/assets/${work.imageFolder}/`;
+                    const workImages = [];
 
-                    // Find the exact path that matches our expected path pattern
+                    // Find all images in this folder
                     for (const path in imageModules) {
-                        if (path === expectedPath) {
-                            const imageModule = await imageModules[path]();
-                            images[work.id] = imageModule.default;
-                            break;
+                        if (path.startsWith(folderPath)) {
+                            try {
+                                const imageModule = await imageModules[path]();
+                                workImages.push(imageModule.default);
+                            } catch (error) {
+                                console.error(`Failed to load image: ${path}`, error);
+                            }
                         }
+                    }
+
+                    // Store all images for this work
+                    if (workImages.length > 0) {
+                        allImages[work.id] = workImages;
                     }
                 }
             }
 
-            setFolderImages(images);
+            setFolderImages(allImages);
         };
 
-        loadFeaturedImages();
+        loadFolderImages();
     }, []);
 
-// Keep the separate useEffect for image orientation
+    // Keep the separate useEffect for image orientation
     useEffect(() => {
         if (selectedWork?.images?.length) {
             setTimeout(() => {
@@ -187,7 +196,7 @@ const OurWorks = () => {
                                         className="view-all-btn"
                                         onClick={() => openGallery(work)}
                                     >
-                                        Усі фото
+                                        Усі фото {folderImages[work.id] ? `(${folderImages[work.id].length})` : ''}
                                     </button>
                                 </div>
                             </div>
@@ -202,18 +211,22 @@ const OurWorks = () => {
                             <button className="close-gallery" onClick={closeGallery}>&times;</button>
                             <h2>{selectedWork.title}</h2>
                             <div className="gallery-images">
-                                {selectedWork.images?.map((img, index) => (
-                                    <div
-                                        className="gallery-image"
-                                        key={index}
-                                        data-index={index}
-                                    >
-                                        <img
-                                            src={img}
-                                            alt={`${selectedWork.title} - фото ${index + 1}`}
-                                            loading="lazy" />
-                                    </div>
-                                ))}
+                                {selectedWork.images?.length ? (
+                                    selectedWork.images.map((img, index) => (
+                                        <div
+                                            className="gallery-image"
+                                            key={index}
+                                            data-index={index}
+                                        >
+                                            <img
+                                                src={img}
+                                                alt={`${selectedWork.title} - фото ${index + 1}`}
+                                                loading="lazy" />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>Немає доступних фотографій</p>
+                                )}
                             </div>
                         </div>
                     </div>
