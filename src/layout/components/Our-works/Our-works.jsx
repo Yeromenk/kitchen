@@ -1,59 +1,79 @@
-import { useEffect, useState } from 'react'
+import {useEffect, useState} from 'react'
 import './Our-works.css'
-import petroCrystalImage from '../../../assets/Petro Crystal/20241223_115719.jpg'
-import bogdanImage from '../../../assets/Bogdan/20241028_191835.jpg'
-import oksanaImage from '../../../assets/Oksana/20240115_200402.jpg'
-import oleksanderImage from '../../../assets/Oleksander/20231212_184220.jpg'
-import tatianaImage from '../../../assets/Tatiana/20231221_213305.jpg'
+import modernKitchen from '../../../assets/modernKitchen/К Лар 1.jpg'
+import classicKitchen from '../../../assets/classicKitchen/К А 2.jpg'
+import livingRoom from '../../../assets/livingRoom/В Лар 4.jpg'
+import childrenRoom from '../../../assets/childrenRoom/Д Мик 2.jpg'
+import bathroom from '../../../assets/bathroom/Св П 2.jpg'
+import vestibule from '../../../assets/vestibule/П Лук 1.jpg'
+import closet from '../../../assets/шафи, гардеробні, спальні/Г П 2.jpg'
 
 const OurWorks = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [selectedWork, setSelectedWork] = useState(null)
     const [imagesLoaded, setImagesLoaded] = useState(false)
     const [folderImages, setFolderImages] = useState({})
+    const [galleryImagesLoaded, setGalleryImagesLoaded] = useState({})
+    const [slideIndex, setSlideIndex] = useState(null)
 
-    const categories = ['all', 'кухні', 'корпусні меблі', 'санвузли']
+    const categories = ['all', 'кухні', 'кімнати', 'шафи,гардеробні', 'санвузли']
 
     const works = [
         {
             id: 1,
             title: "Сучасна кухня",
             category: "кухні",
-            image: petroCrystalImage,
-            description: "Модернізація кухні з індивідуальними шафами",
-            imageFolder: "Petro Crystal"
+            image: modernKitchen,
+            description: "Стильні кухні з ергономічним дизайном, функціональними шафами та сучасною техінкою",
+            imageFolder: "modernKitchen"
         },
         {
             id: 2,
             title: "Класична кухня",
             category: "кухні",
-            image: bogdanImage,
-            description: "Традиційний дизайн з сучасними зручностями",
-            imageFolder: "Bogdan"
+            image: classicKitchen,
+            description: "Елегантні та затишні кухні з натуральних матеріалів, що створюють теплу домашню атмосферу",
+            imageFolder: "classicKitchen"
         },
         {
             id: 3,
-            title: "Шафа-купе",
-            category: "корпусні меблі",
-            image: oksanaImage,
-            description: "Ергономічна шафа-купе з дзеркалами",
-            imageFolder: "Oksana"
+            title: "Вітальні",
+            category: "кімнати",
+            image: livingRoom,
+            description: "Комфортні вітальні з функціональними меблями для відпочинку та спілкування всією родиною",
+            imageFolder: "livingRoom"
         },
         {
             id: 4,
-            title: "Гардеробна",
-            category: "корпусні меблі",
-            image: oleksanderImage,
-            description: "Простора гардеробна з системою зберігання",
-            imageFolder: "Oleksander"
+            title: "Дитячі",
+            category: "кімнати",
+            image: childrenRoom,
+            description: "Яскраві та практичні дитячі кімнати з безпечними матеріалами та продуманими рішеннями",
+            imageFolder: "childrenRoom"
         },
         {
             id: 5,
             title: "Сучасний санвузол",
             category: "санвузли",
-            image: tatianaImage,
-            description: "Ванна кімната з функціональними меблями",
-            imageFolder: "Tatiana"
+            image: bathroom,
+            description: "Функціональні санвузли з вологостійкими меблями та зручними системами зберігання",
+            imageFolder: "bathroom"
+        },
+        {
+            id: 6,
+            title: "Прихожі",
+            category: "кімнати",
+            image: vestibule,
+            description: "Практичні прихожі з максимальним використанням простору для зберігання речей",
+            imageFolder: "vestibule"
+        },
+        {
+            id: 7,
+            title: "Шафи, гардеробні, спальні",
+            category: "шафи,гардеробні",
+            image: closet,
+            description: "Індивідуально спроектовані шафи-купе та гардеробні для зручного зберігання речей",
+            imageFolder: "шафи, гардеробні, спальні"
         }
     ]
 
@@ -85,6 +105,12 @@ const OurWorks = () => {
         } else if (aspectRatio > 1.2) {
             container.classList.add('landscape');
         }
+
+        // Mark this specific gallery image as loaded
+        const index = img.dataset.index;
+        if (index !== undefined) {
+            setGalleryImagesLoaded(prev => ({...prev, [index]: true}));
+        }
     };
 
     const filteredWorks = selectedCategory === 'all'
@@ -93,6 +119,8 @@ const OurWorks = () => {
 
     const closeGallery = () => {
         setSelectedWork(null);
+        setGalleryImagesLoaded({});
+        setSlideIndex(null);
         document.body.style.overflow = 'auto';
     }
 
@@ -101,7 +129,33 @@ const OurWorks = () => {
             ...work,
             images: folderImages[work.id] || []
         });
+        setGalleryImagesLoaded({});
         document.body.style.overflow = 'hidden';
+    }
+
+    const openSlideshow = (index) => {
+        setSlideIndex(index);
+        document.body.style.overflow = 'hidden';
+    }
+
+    const closeSlideshow = () => {
+        setSlideIndex(null);
+        document.body.style.overflow = 'auto';
+    }
+
+    const navigateSlide = (direction) => {
+        if (!selectedWork?.images?.length) return;
+
+        const totalImages = selectedWork.images.length;
+        let newIndex;
+
+        if (direction === 'next') {
+            newIndex = (slideIndex + 1) % totalImages;
+        } else {
+            newIndex = (slideIndex - 1 + totalImages) % totalImages;
+        }
+
+        setSlideIndex(newIndex);
     }
 
     const handleModalClick = (e) => {
@@ -109,6 +163,30 @@ const OurWorks = () => {
             closeGallery();
         }
     }
+
+    const handleSlideshowClick = (e) => {
+        if (e.target.classList.contains('slideshow-modal')) {
+            closeSlideshow();
+        }
+    }
+
+    // Handle keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (slideIndex === null) return;
+
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                navigateSlide('next');
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                navigateSlide('prev');
+            } else if (e.key === 'Escape') {
+                closeSlideshow();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [slideIndex, selectedWork]);
 
     // Load all images from respective folders
     useEffect(() => {
@@ -196,7 +274,7 @@ const OurWorks = () => {
                                         className="view-all-btn"
                                         onClick={() => openGallery(work)}
                                     >
-                                        Усі фото {folderImages[work.id] ? `(${folderImages[work.id].length})` : ''}
+                                        Усі фото
                                     </button>
                                 </div>
                             </div>
@@ -210,24 +288,49 @@ const OurWorks = () => {
                         <div className="gallery-content">
                             <button className="close-gallery" onClick={closeGallery}>&times;</button>
                             <h2>{selectedWork.title}</h2>
-                            <div className="gallery-images">
+                            <div className={`gallery-images ${selectedWork.images?.length <= 2 ? 'few-images' : ''}`}>
                                 {selectedWork.images?.length ? (
                                     selectedWork.images.map((img, index) => (
                                         <div
                                             className="gallery-image"
                                             key={index}
                                             data-index={index}
+                                            onClick={() => openSlideshow(index)}
                                         >
+                                            {!galleryImagesLoaded[index] && <div className="image-skeleton"></div>}
                                             <img
                                                 src={img}
                                                 alt={`${selectedWork.title} - фото ${index + 1}`}
-                                                loading="lazy" />
+                                                loading="lazy"
+                                                data-index={index}
+                                                onLoad={(e) => handleImageLoad(e.target)}/>
                                         </div>
                                     ))
                                 ) : (
                                     <p>Немає доступних фотографій</p>
                                 )}
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Slideshow Modal */}
+                {selectedWork && slideIndex !== null && (
+                    <div className="slideshow-modal" onClick={handleSlideshowClick}>
+                        <div className="slideshow-content">
+                            <button className="close-slideshow" onClick={closeSlideshow}>&times;</button>
+                            <button className="slide-nav prev" onClick={() => navigateSlide('prev')}>&#10094;</button>
+                            <div className="slide-container">
+                                <img
+                                    src={selectedWork.images[slideIndex]}
+                                    alt={`${selectedWork.title} - слайд ${slideIndex + 1}`}
+                                    className="slide-image"
+                                />
+                                <div className="slide-counter">
+                                    {slideIndex + 1} / {selectedWork.images.length}
+                                </div>
+                            </div>
+                            <button className="slide-nav next" onClick={() => navigateSlide('next')}>&#10095;</button>
                         </div>
                     </div>
                 )}

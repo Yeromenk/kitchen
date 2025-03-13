@@ -2,10 +2,11 @@
     height: 90vh;
     width: 100%;
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-    url('/src/assets/Petro Crystal/20241223_115719.jpg');
+    url('/src/assets/20241223_115719.jpg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-attachment: scroll; /* Changed from fixed to scroll for mobile */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -32,6 +33,12 @@
 }
 
 @media (max-width: 768px) {
+    .welcome-container {
+        background-position: center center;
+        background-size: cover;
+        height: 80vh; /* Slightly reduced height for mobile */
+    }
+
     .welcome-content h1 {
         font-size: 2.5rem;
     }
