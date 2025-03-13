@@ -1,5 +1,5 @@
 import './Footer.css'
-import {FaFacebook, FaInstagram, FaPhone, FaMapMarkerAlt, FaClock, FaEnvelope, FaMailchimp} from 'react-icons/fa'
+import {FaFacebook, FaInstagram, FaPhone, FaMapMarkerAlt, FaClock, FaEnvelope} from 'react-icons/fa'
 
 const Footer = () => {
     return (
@@ -34,8 +34,16 @@ const Footer = () => {
 
                 <div className="footer-section">
                     <h3><FaEnvelope/>Контакти</h3>
-                    <p><FaPhone size={20}/> +380 995 256 783</p>
-                    <p><FaEnvelope size={20}/> villagrande.uz@gmail.com</p>
+                    <p>
+                        <a href="tel:+380995256783" className="contact-link">
+                            <FaPhone size={20}/> +380 995 256 783
+                        </a>
+                    </p>
+                    <p>
+                        <a href="mailto:villagrande.uz@gmail.com" className="contact-link">
+                            <FaEnvelope size={20}/> villagrande.uz@gmail.com
+                        </a>
+                    </p>
                     <div className="social-links">
                         <a href="https://www.facebook.com/villagrande1?locale=ru_RU" target="_blank" rel="noopener noreferrer">
                             <FaFacebook/>
