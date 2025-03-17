@@ -15,6 +15,7 @@ const OurWorks = () => {
     const [folderImages, setFolderImages] = useState({})
     const [galleryImagesLoaded, setGalleryImagesLoaded] = useState({})
     const [slideIndex, setSlideIndex] = useState(null)
+    const [isLoadingGallery, setIsLoadingGallery] = useState(false);
 
     const categories = ['all', 'кухні', 'кімнати', 'шафи,гардеробні', 'санвузли']
 
@@ -125,12 +126,20 @@ const OurWorks = () => {
     }
 
     const openGallery = (work) => {
+        setIsLoadingGallery(true);
         setSelectedWork({
             ...work,
             images: folderImages[work.id] || []
         });
         setGalleryImagesLoaded({});
         document.body.style.overflow = 'hidden';
+
+        // Set loading to false once we confirm images are ready
+        if (folderImages[work.id]?.length > 0) {
+            setTimeout(() => setIsLoadingGallery(false), 300);
+        } else {
+            setIsLoadingGallery(false);
+        }
     }
 
     const openSlideshow = (index) => {
@@ -289,7 +298,9 @@ const OurWorks = () => {
                             <button className="close-gallery" onClick={closeGallery}>&times;</button>
                             <h2>{selectedWork.title}</h2>
                             <div className={`gallery-images ${selectedWork.images?.length <= 2 ? 'few-images' : ''}`}>
-                                {selectedWork.images?.length ? (
+                                {isLoadingGallery ? (
+                                    <div className="loading-gallery">Завантаження галереї...</div>
+                                ) : selectedWork.images?.length ? (
                                     selectedWork.images.map((img, index) => (
                                         <div
                                             className="gallery-image"
