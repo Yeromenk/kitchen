@@ -16,6 +16,7 @@ const OurWorks = () => {
     const [galleryImagesLoaded, setGalleryImagesLoaded] = useState({})
     const [slideIndex, setSlideIndex] = useState(null)
     const [isLoadingGallery, setIsLoadingGallery] = useState(false);
+    const [imagesAreLoading, setImagesAreLoading] = useState(true);
 
     const categories = ['all', 'кухні', 'кімнати', 'шафи,гардеробні', 'санвузли']
 
@@ -126,20 +127,31 @@ const OurWorks = () => {
     }
 
     const openGallery = (work) => {
+        // Always show loading indicator immediately
         setIsLoadingGallery(true);
+
+        // Initialize with basic info and empty images array
         setSelectedWork({
             ...work,
-            images: folderImages[work.id] || []
+            images: []
         });
+
         setGalleryImagesLoaded({});
         document.body.style.overflow = 'hidden';
 
-        // Set loading to false once we confirm images are ready
+        // Check if images for this work are already loaded
         if (folderImages[work.id]?.length > 0) {
-            setTimeout(() => setIsLoadingGallery(false), 300);
-        } else {
-            setIsLoadingGallery(false);
+            // Update images after a short delay to ensure loading state is visible
+            setTimeout(() => {
+                setSelectedWork(prev => ({
+                    ...prev,
+                    images: folderImages[work.id] || []
+                }));
+                setIsLoadingGallery(false);
+            }, 300);
         }
+        // If no images yet and we're still loading all folders, keep loading state
+        // The useEffect below will update the images when they're available
     }
 
     const openSlideshow = (index) => {
@@ -200,6 +212,7 @@ const OurWorks = () => {
     // Load all images from respective folders
     useEffect(() => {
         const loadFolderImages = async () => {
+            setImagesAreLoading(true);
             const imageModules = import.meta.glob('/src/assets/**/*.{png,jpg,jpeg,webp,svg}');
             const allImages = {};
 
@@ -228,10 +241,31 @@ const OurWorks = () => {
             }
 
             setFolderImages(allImages);
+            setImagesAreLoading(false);
         };
 
         loadFolderImages();
     }, []);
+
+    // Update selected work with loaded images when they become available
+    useEffect(() => {
+        if (selectedWork && isLoadingGallery) {
+            const workId = selectedWork.id;
+
+            // Check if images for the selected work are now available
+            if (folderImages[workId]?.length > 0) {
+                setSelectedWork(prev => ({
+                    ...prev,
+                    images: folderImages[workId]
+                }));
+                setIsLoadingGallery(false);
+            } else if (!imagesAreLoading) {
+                // If all images are loaded but none for this work, stop loading state
+                setIsLoadingGallery(false);
+            }
+            // If still loading overall, keep the loading state until the main loading completes
+        }
+    }, [folderImages, selectedWork, isLoadingGallery, imagesAreLoading]);
 
     // Keep the separate useEffect for image orientation
     useEffect(() => {
@@ -244,6 +278,22 @@ const OurWorks = () => {
             }, 100);
         }
     }, [selectedWork])
+
+    // Preload first image from each folder for faster gallery loading
+    useEffect(() => {
+        const preloadFirstImages = () => {
+            Object.values(folderImages).forEach(images => {
+                if (images?.length > 0) {
+                    const img = new Image();
+                    img.src = images[0];
+                }
+            });
+        };
+
+        if (Object.keys(folderImages).length > 0) {
+            preloadFirstImages();
+        }
+    }, [folderImages]);
 
     return (
         <section className="works-section" id="our-works">
